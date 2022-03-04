@@ -1,7 +1,14 @@
+// metodos estáticos não podem acessar o this
+// por isso nao vamos colocar o util no construtor
+const util = Util
 const ID_CONTEUDO = "conteudo"
 const ID_BTN_JOGAR = "jogar"
 const ID_MENSAGEM = "mensagem"
 const CLASSE_INVISIVEL ="invisible"
+const ID_CARREGANDO="carregando"
+const ID_CONTADOR="contador"
+const ID_MOSTRARTUDO="mostrarTudo"
+
 const MENSAGENS = {
     sucesso:{
         texto: "Combinação Correta",
@@ -51,7 +58,7 @@ class Tela {
            //com o foreach, para cada item dentro dos () setamos o valor de imagem
           elementosHtml.forEach(item => (item.src = img))
       }
-      static exibirMensagem(sucesso = true){
+      static async exibirMensagem(sucesso = true){
           const elemento = document.getElementById(ID_MENSAGEM)
           if(sucesso){
               elemento.classList.remove(MENSAGENS.erro.classe)
@@ -64,6 +71,38 @@ class Tela {
               elemento.innerText = MENSAGENS.erro.texto
           }
           elemento.classList.remove(CLASSE_INVISIVEL)
-          
+          await util.timeout(3000)
+          elemento.classList.add(CLASSE_INVISIVEL)
       }
+
+      static exibirCarregando(mostrar= true){ 
+          const carregando = document.getElementById(ID_CARREGANDO)
+        if(mostrar){
+            carregando.classList.remove(CLASSE_INVISIVEL)
+            return;
+        }
+        carregando.classList.add(CLASSE_INVISIVEL)
+    }
+    static iniciarContador(){
+        let contarAte= 3
+        const elementoContador = document.getElementById(ID_CONTADOR)
+        const identificadorNoTexto ="$$contador"
+        const textoPadrao = `Começando em ${identificadorNoTexto} segundos...`
+        const atualizarTexto = ()=>(
+            elementoContador.innerHTML = textoPadrao.replace(identificadorNoTexto, contarAte--)
+        )
+        atualizarTexto()
+        //a cada segundo ele vai chamar a função de atualiar texto
+        // a função vai substituir o contador
+        const idDoIntervalo = setInterval(atualizarTexto, 1000)
+        return idDoIntervalo
+    }
+    static limparContador(idDoIntervalo){
+        clearInterval(idDoIntervalo)
+        document.getElementById(ID_CONTADOR).innerHTML=""
+    }
+   static configurarBotaoMostrarTudo(funcaoOnClick){
+        const btnMostrarTudo = document.getElementById(ID_MOSTRARTUDO)
+        btnMostrarTudo.onclick = funcaoOnClick
+    }
 }

@@ -2,8 +2,9 @@
     // se mandar um objeto = {tela: 1, idade: 2, etc: 3}
     // vai ignorar o resto das propriedades e pegar somente a propriedade
     // tela
-    constructor({tela}){
+    constructor({tela, util}){
         this.tela = tela
+        this.util = util
         // caminho do arquivo, sempre relativo ao index html
         this.heroisIniciais =[
             {
@@ -35,8 +36,9 @@
         this.tela.atualizarImagens(this.heroisIniciais)
         this.tela.configurarBotaoJogar(this.jogar.bind(this))
         this.tela.configurarBotaoVerificarSelecao(this.verificarSelecao.bind(this))
+        this.tela.configurarBotaoMostrarTudo(this.mostrarHeroisEscondidos.bind(this))
     }
-    embaralhar(){
+   async embaralhar(){
         const copias = this.heroisIniciais
         //duplicar os itens
         .concat(this.heroisIniciais)
@@ -47,10 +49,13 @@
         //ORDENAR
         .sort(()=> Math.random() - 0.5)
         this.tela.atualizarImagens(copias)
+        this.tela.exibirCarregando()
+        const idDoIntervalo = this.tela.iniciarContador()
 
-        setTimeout(()=> {
+      await this.util.timeout(3000)
             this.esconderHerois(copias)
-        },1000);
+            this.tela.exibirCarregando(false)
+       
 
     }
     esconderHerois(herois){
@@ -63,7 +68,7 @@
             img: this.iconePadrao
         }))
         this.tela.atualizarImagens(heroisOcultos)
-        this.heroisOcultos = heroisOcultos
+        this.heroisEscondidos = heroisOcultos
 
     }
     exibirHerois(nomeDoHeroi){
@@ -95,6 +100,14 @@
                 break;
         }
 
+    }
+    mostrarHeroisEscondidos(){
+        const heroisEscondidos = this.heroisEscondidos
+        for(const heroi of heroisEscondidos){
+            const {img}= this.heroisIniciais.find(item => item.nome === heroi.nome)
+            heroi.img= img
+        }
+        this.tela.atualizarImagens(heroisEscondidos)
     }
 
     jogar(){
